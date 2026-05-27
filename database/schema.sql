@@ -1,0 +1,201 @@
+-- 餐饮智能管理系统 - 数据库建表脚本 (MySQL)
+-- 使用 JPA/Hibernate ddl-auto=update 时自动建表，此文件为手动部署备用
+
+CREATE TABLE IF NOT EXISTS stores (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_code VARCHAR(50) NOT NULL,
+    store_name VARCHAR(100) NOT NULL,
+    address VARCHAR(200),
+    contact_phone VARCHAR(20),
+    daily_profit_target DECIMAL(12,2) DEFAULT 0,
+    monthly_profit_target DECIMAL(12,2) DEFAULT 0,
+    status INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS dish_categories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    category_code VARCHAR(50) NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    sort_order INT DEFAULT 0,
+    store_id BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS dishes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_id BIGINT,
+    category_id BIGINT,
+    dish_code VARCHAR(50),
+    dish_name VARCHAR(100) NOT NULL,
+    cost_price DECIMAL(10,2) DEFAULT 0,
+    sale_price DECIMAL(10,2) DEFAULT 0,
+    is_buffet INT DEFAULT 1,
+    status INT DEFAULT 1,
+    priority_score INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ingredient_categories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    category_code VARCHAR(50) NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    parent_id BIGINT DEFAULT 0,
+    sort_order INT DEFAULT 0,
+    store_id BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ingredients (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_id BIGINT,
+    category_id BIGINT,
+    ingredient_code VARCHAR(50),
+    ingredient_name VARCHAR(100) NOT NULL,
+    unit VARCHAR(20),
+    unit_price DECIMAL(10,2) DEFAULT 0,
+    safety_stock DECIMAL(10,2) DEFAULT 0,
+    max_stock DECIMAL(10,2) DEFAULT 0,
+    shelf_life_days INT DEFAULT 0,
+    warning_days INT DEFAULT 0,
+    status INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS inventory (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_id BIGINT,
+    ingredient_id BIGINT,
+    quantity DECIMAL(10,2) DEFAULT 0,
+    reserved_quantity DECIMAL(10,2) DEFAULT 0,
+    production_date DATE,
+    expiry_date DATE,
+    batch_no VARCHAR(100),
+    supplier VARCHAR(200),
+    unit_price DECIMAL(10,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS dish_recipes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    dish_id BIGINT,
+    ingredient_id BIGINT,
+    quantity DECIMAL(10,2) DEFAULT 0,
+    unit VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS dish_orders (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(50) NOT NULL,
+    store_id BIGINT,
+    table_no VARCHAR(20),
+    guest_count INT DEFAULT 0,
+    total_amount DECIMAL(12,2) DEFAULT 0,
+    payment_method VARCHAR(50),
+    status VARCHAR(20) DEFAULT 'PENDING',
+    remark VARCHAR(500),
+    paid_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT,
+    dish_id BIGINT,
+    dish_name VARCHAR(100),
+    quantity INT DEFAULT 1,
+    unit_price DECIMAL(10,2) DEFAULT 0,
+    subtotal DECIMAL(12,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS sales_records (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_id BIGINT,
+    business_date DATE NOT NULL,
+    total_customers INT DEFAULT 0,
+    total_amount DECIMAL(12,2) DEFAULT 0,
+    buffet_amount DECIMAL(12,2) DEFAULT 0,
+    single_amount DECIMAL(12,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS dish_sales (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    business_date DATE NOT NULL,
+    dish_id BIGINT,
+    dish_name VARCHAR(100),
+    quantity INT DEFAULT 0,
+    served_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS purchase_orders (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(50) NOT NULL,
+    store_id BIGINT,
+    total_amount DECIMAL(12,2) DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    supplier VARCHAR(200),
+    remark VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS purchase_order_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT,
+    ingredient_id BIGINT,
+    ingredient_name VARCHAR(100),
+    quantity DECIMAL(10,2) DEFAULT 0,
+    unit VARCHAR(20),
+    unit_price DECIMAL(10,2) DEFAULT 0,
+    subtotal DECIMAL(12,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS waste_records (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_id BIGINT,
+    ingredient_id BIGINT,
+    ingredient_name VARCHAR(100),
+    quantity DECIMAL(10,2) DEFAULT 0,
+    unit VARCHAR(20),
+    reason VARCHAR(200),
+    remark VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS profit_targets (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_id BIGINT,
+    daily_target DECIMAL(12,2) DEFAULT 0,
+    monthly_target DECIMAL(12,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ingredient_consumption (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    store_id BIGINT,
+    ingredient_id BIGINT,
+    ingredient_name VARCHAR(100),
+    quantity DECIMAL(10,2) DEFAULT 0,
+    consumption_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

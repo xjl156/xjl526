@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: restaurant-management
+  profiles:
+    active: dev
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Jackson
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Logging
+logging:
+  level:
+    com.restaurant: DEBUG
+    org.springframework: INFO
